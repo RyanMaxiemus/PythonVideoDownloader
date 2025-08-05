@@ -14,6 +14,7 @@ Requirements:
 
 # Import Tkinter libraries from the module
 import tkinter
+import threading
 
 # Import the youtube library from the installed Pytube module.
 from pytube import YouTube
@@ -57,8 +58,8 @@ status_label = tkinter.Label(root, text="", font="arial 15")
 status_label.pack(pady=5)
 
 
-def download():
-    """Captures the link from the entry, downloads the highest quality stream, and updates the status label."""
+def _execute_download():
+    """Contains the core download logic to be run in a separate thread."""
     try:
         # This captures the link(url) and locates it from YouTube.
         url = YouTube(str(link.get()))
@@ -74,5 +75,14 @@ def download():
     except Exception as e:
         # Update the status label on error
         status_label.config(text=f"Error: {e}", fg="red")
+    finally:
+        # Re-enable the download button
+        btn.config(state=tkinter.NORMAL)
+
+def download():
+    """Starts the download process in a new thread to keep the GUI responsive."""
+    btn.config(state=tkinter.DISABLED) # Disable button during download
+    status_label.config(text="Downloading...", fg="blue")
+    threading.Thread(target=_execute_download).start()
 
 root.mainloop()
