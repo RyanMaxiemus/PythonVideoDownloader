@@ -15,6 +15,7 @@ Requirements:
 # Import Tkinter libraries from the module
 import tkinter
 import threading
+from tkinter import filedialog
 
 # Import the youtube library from the installed Pytube module.
 from pytube import YouTube
@@ -58,31 +59,39 @@ status_label = tkinter.Label(root, text="", font="arial 15")
 status_label.pack(pady=5)
 
 
-def _execute_download():
+def _execute_download(save_path: str):
     """Contains the core download logic to be run in a separate thread."""
     try:
         # This captures the link(url) and locates it from YouTube.
-        url = YouTube(str(link.get()))
+        yt_url = str(link.get())
+        if not yt_url:
+            raise ValueError("Please enter your YouTube video's URL, dipshit!)
+        url = YouTube(yt_url)
 
         # This captures the streams available and gets the highest resolution.
         video = url.streams.get_highest_resolution()
 
         # This is the method with the instruction to download the video.
-        video.download()
+        video.download(output_path=save_path)
 
         # Update the status label on success
         status_label.config(text="Downloaded Successfully!", fg="green")
     except Exception as e:
         # Update the status label on error
-        status_label.config(text=f"Error: {e}", fg="red")
+        status_label.config(text=f"Error: {e}", fg="red", wraplength=500)
     finally:
         # Re-enable the download button
         btn.config(state=tkinter.NORMAL)
 
 def download():
-    """Starts the download process in a new thread to keep the GUI responsive."""
-    btn.config(state=tkinter.DISABLED) # Disable button during download
+    """Asks for a save location, then starts the download in a new thread."""
+    save_path = filedialog.askdirectory()
+    if not save_path:
+        # User cancelled the dialog, so do nothing.
+        return
+
+    btn.config(state=tkinter.DISABLED)  # Disable button during download
     status_label.config(text="Downloading...", fg="blue")
-    threading.Thread(target=_execute_download).start()
+    threading.Thread(target=_execute_download, args=(save_path,)).start()
 
 root.mainloop()
