@@ -1,15 +1,7 @@
 """
 A simple GUI application to download YouTube videos using Pytube.
 
-This script uses Tkinter for the GUI and Pytube for downloading videos.
-
-Author: Ryan Maxie
-Date: 2023-10-01
-Version: 1.0
-License: MIT License
-
-Requirements:
-    - pytube (pip install pytube)
+See README.md for detailed usage instructions and features.
 """
 
 # Import necessary libraries.
